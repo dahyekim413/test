@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>기록 — APP-ARPT</title>
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --bg-body-gray:    #ebeef4;
+      --bg-body-white:   #ffffff;
+      --bg-input-gray:   #f4f7f9;
+      --border-lightgray:#ced3df;
+      --text-black:      #040e1c;
+      --text-gray:       #5f6677;
+      --text-mid-gray:   #848486;
+      --primary-200:     #9bcdff;
+      --primary-400:     #45a2ff;
+      --primary-700:     #2a7df2;
+      --primary-blue:    #136ff3;
+      --primary-bg:      rgba(68,125,242,0.15);
+      --red-300:         #ff7984;
+      --red-100:         #fff0f1;
+      --green-400:       #6ac998;
+      --orange-400:      #f3b977;
+      --lightblue-400:   #77acff;
+      --overlay-50:      rgba(32,32,32,0.50);
+      --overlay-30:      rgba(32,32,32,0.30);
+      --rd-card:         20px;
+      --rd-btn:          12px;
+      --sp-card:         20px;
+    }
+
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #c8cdd6;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+    }
+
+    /* ── Phone Shell ── */
+    .phone {
+      width: 360px;
+      min-height: 100vh;
+      background: var(--bg-body-gray);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ── Status Bar ── */
+    .status-bar {
+      background: var(--bg-body-white);
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 16px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .status-bar .time {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-black);
+      margin-right: 6px;
+    }
+    .status-bar svg { flex-shrink: 0; }
+
+    /* ── App Bar ── */
+    .app-bar {
+      background: var(--bg-body-white);
+      border-bottom: 1px solid var(--border-lightgray);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      flex-shrink: 0;
+    }
+    .app-bar .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-black);
+    }
+
+    /* ── Scroll Area ── */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px var(--sp-card);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-bottom: 32px;
+    }
+    .scroll-area::-webkit-scrollbar { display: none; }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg-body-white);
+      border-radius: var(--rd-card);
+      padding: 16px var(--sp-card) 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── Card Header ── */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card-header-left:active { opacity: 0.6; }
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-black);
+      white-space: nowrap;
+    }
+    .icon-arrow {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-gray);
+    }
+
+    /* ── Input Button ── */
+    .btn-input {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      height: 36px;
+      padding: 0 12px 0 6px;
+      border: 1px solid var(--border-lightgray);
+      border-radius: var(--rd-btn);
+      background: var(--bg-body-white);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-black);
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+    .btn-input:active { background: var(--bg-body-gray); }
+    .btn-input .plus-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--text-black);
+    }
+
+    /* ── Progress Bar ── */
+    .progress-bar {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      flex: 1;
+      min-width: 0;
+    }
+    .progress-bar .seg {
+      height: 100%;
+    }
+
+    /* ── Metric Row ── */
+    .metric-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .metric-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      width: 88px;
+    }
+    .metric-label .icon { width: 20px; height: 20px; flex-shrink: 0; }
+    .metric-label .label-text {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-black);
+    }
+    .metric-value-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+    .metric-value {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      flex-shrink: 0;
+      min-width: 72px;
+    }
+    .metric-value .number {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-black);
+      line-height: 1;
+    }
+    .metric-value .unit {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-gray);
+      line-height: 1;
+    }
+
+    /* ── 체형자산 ── */
+    .body-metrics { display: flex; flex-direction: column; gap: 20px; }
+
+    /* ── 식단 ── */
+    .diet-kcal-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .diet-kcal-icon { width: 20px; height: 20px; flex-shrink: 0; }
+    .diet-kcal-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-black);
+      line-height: 1;
+    }
+    .diet-kcal-value.over { color: var(--red-300); }
+    .diet-kcal-target {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--text-gray);
+    }
+    .diet-over-badge {
+      margin-left: auto;
+      background: var(--red-100);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--red-300);
+    }
+    .diet-bar-wrap { display: flex; flex-direction: column; gap: 6px; }
+    .diet-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-mid-gray);
+      padding: 0 2px;
+    }
+    .diet-bar {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: #e1e5ee;
+      position: relative;
+    }
+    .diet-bar .seg-carb   { background: var(--lightblue-400); }
+    .diet-bar .seg-protein{ background: var(--green-400); }
+    .diet-bar .seg-fat    { background: var(--orange-400); }
+    .diet-bar .seg-over   { background: var(--red-300); }
+    .thumb-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+    }
+    .thumb-row::-webkit-scrollbar { display: none; }
+    .thumb-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+    .thumb-img {
+      width: 58px;
+      height: 58px;
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+      background: var(--bg-input-gray);
+    }
+    .thumb-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .thumb-meal-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--overlay-50);
+      text-align: center;
+      padding: 2px 4px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 16px;
+    }
+    .thumb-add {
+      width: 58px;
+      height: 58px;
+      border-radius: 10px;
+      background: var(--border-lightgray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .thumb-add:active { background: #b8bfcf; }
+    .thumb-time {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-mid-gray);
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ── 활동량 ── */
+    .activity-metrics { display: flex; flex-direction: column; gap: 20px; }
+    .activity-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .activity-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+    .activity-label .icon { width: 20px; height: 20px; flex-shrink: 0; }
+    .activity-value {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+    .activity-value .number {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-black);
+      line-height: 1;
+    }
+    .activity-value .unit {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-gray);
+    }
+    .activity-bar-wrap {
+      flex-shrink: 0;
+      width: 80px;
+    }
+    .activity-bar {
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #e1e5ee;
+      position: relative;
+    }
+    .activity-bar .fill {
+      position: absolute;
+      left: 0; top: 0; height: 100%;
+      border-radius: 999px;
+      background: var(--primary-400);
+    }
+
+    /* ── 심리 ── */
+    .psych-label {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-black);
+    }
+    .psych-score-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .psych-score {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+    .psych-score .number {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-black);
+      line-height: 1;
+    }
+    .psych-score .unit {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-gray);
+    }
+    .star-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      justify-content: center;
+    }
+    .star {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+    .psych-feedback {
+      background: #fff8ec;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #b07700;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    /* ── 수면 ── */
+    .sleep-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sleep-score {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+    }
+    .sleep-score .number {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-black);
+      line-height: 1;
+    }
+    .sleep-score .unit {
+      font-size: 14px;
+      color: var(--text-gray);
+    }
+    .sleep-badge {
+      background: var(--primary-bg);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--primary-blue);
+    }
+    .sleep-details {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-left: auto;
+      align-items: flex-end;
+    }
+    .sleep-detail-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sleep-detail-row .icon { width: 18px; height: 18px; flex-shrink: 0; }
+    .sleep-detail-row .detail-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-black);
+      white-space: nowrap;
+    }
+    .sleep-detail-row .detail-label {
+      font-size: 12px;
+      color: var(--text-gray);
+      white-space: nowrap;
+    }
+    .sleep-bar-section { display: flex; flex-direction: column; gap: 6px; }
+    .sleep-bar {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      display: flex;
+      background: #e1e5ee;
+    }
+    .sleep-bar .seg-deep   { background: #6068d6; }
+    .sleep-bar .seg-light  { background: var(--primary-400); }
+    .sleep-bar .seg-rem    { background: var(--primary-200); }
+    .sleep-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-mid-gray);
+      padding: 0 2px;
+    }
+    .sleep-stages {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .sleep-stage {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      color: var(--text-gray);
+    }
+    .sleep-stage .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">12:30</span>
+    <!-- wifi -->
+    <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+      <path d="M8 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z" fill="#040e1c"/>
+      <path d="M8 6C5.9 6 4 6.9 2.6 8.3L1.2 6.9A8 8 0 0 1 8 4a8 8 0 0 1 6.8 2.9l-1.4 1.4A5.6 5.6 0 0 0 8 6Z" fill="#040e1c"/>
+      <path d="M8 2C4.7 2 1.8 3.4 0 5.7L1.4 7A7.9 7.9 0 0 1 8 4a7.9 7.9 0 0 1 6.6 3l1.4-1.3A10 10 0 0 0 8 2Z" fill="#040e1c" opacity=".4"/>
+    </svg>
+    <!-- battery -->
+    <svg width="25" height="12" viewBox="0 0 25 12" fill="none">
+      <rect x="0.5" y="0.5" width="21" height="11" rx="3.5" stroke="#040e1c" stroke-opacity=".35"/>
+      <rect x="2" y="2" width="16" height="8" rx="2" fill="#040e1c"/>
+      <path d="M23 4.5v3a1.5 1.5 0 0 0 0-3Z" fill="#040e1c" opacity=".4"/>
+    </svg>
+  </div>
+
+  <!-- App Bar -->
+  <div class="app-bar">
+    <span class="title">기록</span>
+  </div>
+
+  <!-- Scroll Area -->
+  <div class="scroll-area">
+
+    <!-- ══ Card / 체형자산 ══ -->
+    <div class="card" role="region" aria-label="체형 자산">
+      <div class="card-header">
+        <div class="card-header-left" role="button" tabindex="0" aria-label="체형 자산 상세보기">
+          <span class="card-title">체형 자산</span>
+          <div class="icon-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M6.75 4.5 11.25 9l-4.5 4.5" stroke="#5f6677" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <button class="btn-input" aria-label="체형 자산 입력">
+          <span class="plus-icon">＋</span>입력하기
+        </button>
+      </div>
+
+      <div class="body-metrics">
+        <!-- 체중 -->
+        <div class="metric-row">
+          <div class="metric-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <rect x="3" y="8" width="14" height="9" rx="2" stroke="#5f6677" stroke-width="1.5"/>
+                <path d="M7 8V6a3 3 0 0 1 6 0v2" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="10" cy="13" r="1.5" fill="#5f6677"/>
+              </svg>
+            </div>
+            <span class="label-text">체중</span>
+          </div>
+          <div class="metric-value-row">
+            <div class="metric-value">
+              <span class="number">78.4</span>
+              <span class="unit">kg</span>
+            </div>
+            <div class="progress-bar">
+              <div class="seg" style="flex:1;background:var(--primary-200)"></div>
+              <div class="seg" style="flex:1;background:var(--primary-400)"></div>
+              <div class="seg" style="flex:1;background:var(--primary-700)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 골격근량 -->
+        <div class="metric-row">
+          <div class="metric-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <path d="M4 10c0-3.3 2.7-6 6-6s6 2.7 6 6-2.7 6-6 6" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round"/>
+                <path d="M10 7v6M7 10h6" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="label-text">골격근량</span>
+          </div>
+          <div class="metric-value-row">
+            <div class="metric-value">
+              <span class="number">22.2</span>
+              <span class="unit">kg</span>
+            </div>
+            <div class="progress-bar">
+              <div class="seg" style="flex:1;background:var(--primary-200)"></div>
+              <div class="seg" style="flex:1;background:var(--primary-400)"></div>
+              <div class="seg" style="flex:1;background:var(--primary-700)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 체지방률 — 빨간 세그먼트 = 경고 -->
+        <div class="metric-row">
+          <div class="metric-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <ellipse cx="10" cy="12" rx="6" ry="5" stroke="#5f6677" stroke-width="1.5"/>
+                <path d="M10 7V4" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="label-text">체지방률</span>
+          </div>
+          <div class="metric-value-row">
+            <div class="metric-value">
+              <span class="number" style="color:var(--red-300)">32.9</span>
+              <span class="unit">%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="seg" style="flex:1;background:var(--primary-200)"></div>
+              <div class="seg" style="flex:1;background:var(--primary-400)"></div>
+              <div class="seg" style="flex:1;background:var(--red-300)"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 허리둘레 -->
+        <div class="metric-row">
+          <div class="metric-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <path d="M3 10h14M5 7c0 0 1.5 1 5 1s5-1 5-1M5 13s1.5-1 5-1 5 1 5 1" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <span class="label-text">허리둘레</span>
+          </div>
+          <div class="metric-value-row">
+            <div class="metric-value">
+              <span class="number">90</span>
+              <span class="unit">cm</span>
+            </div>
+            <div class="progress-bar">
+              <div class="seg" style="width:34%;background:var(--primary-200)"></div>
+              <div class="seg" style="width:20%;background:var(--primary-400)"></div>
+              <div class="seg" style="flex:1;background:#e1e5ee"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /체형자산 -->
+
+    <!-- ══ Card / 식단 ══ -->
+    <div class="card" role="region" aria-label="식단">
+      <div class="card-header">
+        <div class="card-header-left" role="button" tabindex="0" aria-label="식단 상세보기">
+          <span class="card-title">식단</span>
+          <div class="icon-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M6.75 4.5 11.25 9l-4.5 4.5" stroke="#5f6677" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <!-- [UX 개선] 식단에도 입력하기 버튼 추가 (기존 없음 → 추가) -->
+        <button class="btn-input" aria-label="식단 입력">
+          <span class="plus-icon">＋</span>입력하기
+        </button>
+      </div>
+
+      <!-- 칼로리 요약 -->
+      <div class="diet-kcal-row">
+        <svg class="diet-kcal-icon" viewBox="0 0 20 20" fill="none">
+          <path d="M10 3c-1.5 3-4 4.5-4 7.5a4 4 0 0 0 8 0C14 7.5 11.5 6 10 3Z" stroke="#5f6677" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        <!-- [UX 개선] 초과 시 빨간색 강조 -->
+        <span class="diet-kcal-value over">1,577</span>
+        <span class="diet-kcal-target">/ 1,443 kcal</span>
+        <!-- [UX 개선] 초과 뱃지 추가 -->
+        <span class="diet-over-badge">+134 kcal 초과</span>
+      </div>
+
+      <!-- 영양소 바 -->
+      <div class="diet-bar-wrap">
+        <!-- [UX 개선] 초과 시 빨간 세그먼트로 overflow 표시 -->
+        <div class="diet-bar">
+          <div class="seg-carb"    style="width:40%;"></div>
+          <div class="seg-protein" style="width:28%;"></div>
+          <div class="seg-fat"     style="width:22%;"></div>
+          <div class="seg-over"    style="width:10%;"></div>
+        </div>
+        <div class="diet-bar-labels">
+          <span>탄수화물</span>
+          <span>단백질</span>
+          <span>지방</span>
+          <span style="color:var(--red-300);font-weight:600;">초과</span>
+        </div>
+      </div>
+
+      <!-- 식사 썸네일 -->
+      <!-- [UX 개선] 모든 썸네일에 타임스탬프 일관 표시 -->
+      <div class="thumb-row">
+        <div class="thumb-item">
+          <div class="thumb-add" role="button" tabindex="0" aria-label="식사 추가">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M12 5v14M5 12h14" stroke="#5f6677" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="thumb-time" style="color:transparent;">-</span>
+        </div>
+
+        <div class="thumb-item">
+          <div class="thumb-img">
+            <div style="width:100%;height:100%;background:#d8e4f0;display:flex;align-items:center;justify-content:center;">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="#aaa" stroke-width="1.5"/><path d="M9 14a5 5 0 0 1 10 0" stroke="#aaa" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="thumb-meal-label">아침</div>
+          </div>
+          <span class="thumb-time">오전 8:23</span>
+        </div>
+
+        <div class="thumb-item">
+          <div class="thumb-img">
+            <div style="width:100%;height:100%;background:var(--overlay-30) url('http://localhost:3845/assets/7f33c92e91ce5261c227dc73da8ea00218c07d6d.png') center/cover;"></div>
+            <div class="thumb-meal-label">점심</div>
+          </div>
+          <span class="thumb-time">오후 13:22</span>
+        </div>
+
+        <div class="thumb-item">
+          <div class="thumb-img">
+            <div style="width:100%;height:100%;background:var(--overlay-30) url('http://localhost:3845/assets/0f9bf21f9c3717ddab016e4bcfc0a4ac64f08854.png') center/cover;"></div>
+            <div class="thumb-meal-label">간식</div>
+          </div>
+          <span class="thumb-time">오후 15:33</span>
+        </div>
+
+        <div class="thumb-item">
+          <div class="thumb-img">
+            <div style="width:100%;height:100%;background:var(--overlay-30) url('http://localhost:3845/assets/db8b9df09d7d9db2e8c7d1dc9f19212198b49c6c.png') center/cover;"></div>
+            <div class="thumb-meal-label">저녁</div>
+          </div>
+          <span class="thumb-time">오후 17:23</span>
+        </div>
+
+        <div class="thumb-item">
+          <div class="thumb-img" style="background:#f0e8d0;">
+            <div style="width:100%;height:100%;background:#d5c9b0;display:flex;align-items:center;justify-content:center;">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="10" stroke="#999" stroke-width="1.5"/></svg>
+            </div>
+            <div class="thumb-meal-label">야식</div>
+          </div>
+          <span class="thumb-time">오후 21:10</span>
+        </div>
+      </div>
+    </div><!-- /식단 -->
+
+    <!-- ══ Card / 활동량 ══ -->
+    <div class="card" role="region" aria-label="활동량">
+      <div class="card-header">
+        <div class="card-header-left" role="button" tabindex="0" aria-label="활동량 상세보기">
+          <span class="card-title">활동량</span>
+          <div class="icon-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M6.75 4.5 11.25 9l-4.5 4.5" stroke="#5f6677" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <!-- [UX 개선] 활동량에도 입력하기 버튼 추가 (기존 없음 → 추가) -->
+        <button class="btn-input" aria-label="활동량 입력">
+          <span class="plus-icon">＋</span>입력하기
+        </button>
+      </div>
+
+      <div class="activity-metrics">
+        <!-- 걸음 수 -->
+        <div class="activity-row">
+          <div class="activity-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <path d="M8 16l2-5 3 3 2-8M6 10l2-4" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="activity-value">
+              <span class="number">12,420</span>
+              <span class="unit">걸음</span>
+            </div>
+          </div>
+          <!-- [UX 개선] border-radius 999px 통일 -->
+          <div class="activity-bar-wrap">
+            <div class="activity-bar">
+              <div class="fill" style="width:100%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 운동 시간 -->
+        <div class="activity-row">
+          <div class="activity-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <circle cx="10" cy="10" r="7" stroke="#5f6677" stroke-width="1.5"/>
+                <path d="M10 6v4l3 2" stroke="#5f6677" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div class="activity-value">
+              <span class="number">40</span>
+              <span class="unit">분</span>
+            </div>
+          </div>
+          <div class="activity-bar-wrap">
+            <div class="activity-bar">
+              <div class="fill" style="width:67%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 소모 칼로리 -->
+        <div class="activity-row">
+          <div class="activity-label">
+            <div class="icon">
+              <svg viewBox="0 0 20 20" fill="none" width="20" height="20">
+                <path d="M10 3c-1.5 3-4 4.5-4 7.5a4 4 0 0 0 8 0C14 7.5 11.5 6 10 3Z" stroke="#5f6677" stroke-width="1.5" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div class="activity-value">
+              <span class="number">12,850</span>
+              <span class="unit">Kcal</span>
+            </div>
+          </div>
+          <div class="activity-bar-wrap">
+            <div class="activity-bar">
+              <div class="fill" style="width:77%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /활동량 -->
+
+    <!-- ══ Card / 심리 ══ -->
+    <div class="card" role="region" aria-label="심리">
+      <div class="card-header">
+        <div class="card-header-left" role="button" tabindex="0" aria-label="심리 상세보기">
+          <span class="card-title">심리</span>
+          <div class="icon-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M6.75 4.5 11.25 9l-4.5 4.5" stroke="#5f6677" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <button class="btn-input" aria-label="심리 입력">
+          <span class="plus-icon">＋</span>입력하기
+        </button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <div class="psych-score-row">
+          <span class="psych-label">오늘의 컨디션</span>
+          <div class="psych-score">
+            <span class="number">2.5</span>
+            <span class="unit">점</span>
+          </div>
+        </div>
+
+        <!-- 별점 -->
+        <div class="star-row">
+          <!-- star 1 -->
+          <svg class="star" viewBox="0 0 36 36" fill="none">
+            <path d="M18 5l3.1 9.5H31l-8 5.8 3 9.5-8-5.8-8 5.8 3-9.5-8-5.8h9.9L18 5Z" fill="#ffcc33"/>
+          </svg>
+          <!-- star 2 -->
+          <svg class="star" viewBox="0 0 36 36" fill="none">
+            <path d="M18 5l3.1 9.5H31l-8 5.8 3 9.5-8-5.8-8 5.8 3-9.5-8-5.8h9.9L18 5Z" fill="#ffcc33"/>
+          </svg>
+          <!-- star 2.5 — half -->
+          <svg class="star" viewBox="0 0 36 36" fill="none">
+            <defs>
+              <linearGradient id="half">
+                <stop offset="50%" stop-color="#ffcc33"/>
+                <stop offset="50%" stop-color="#e1e5ee"/>
+              </linearGradient>
+            </defs>
+            <path d="M18 5l3.1 9.5H31l-8 5.8 3 9.5-8-5.8-8 5.8 3-9.5-8-5.8h9.9L18 5Z" fill="url(#half)"/>
+          </svg>
+          <!-- star 4 -->
+          <svg class="star" viewBox="0 0 36 36" fill="none">
+            <path d="M18 5l3.1 9.5H31l-8 5.8 3 9.5-8-5.8-8 5.8 3-9.5-8-5.8h9.9L18 5Z" fill="#e1e5ee"/>
+          </svg>
+          <!-- star 5 -->
+          <svg class="star" viewBox="0 0 36 36" fill="none">
+            <path d="M18 5l3.1 9.5H31l-8 5.8 3 9.5-8-5.8-8 5.8 3-9.5-8-5.8h9.9L18 5Z" fill="#e1e5ee"/>
+          </svg>
+        </div>
+
+        <!-- [UX 개선] 낮은 점수에 대한 피드백 메시지 추가 -->
+        <div class="psych-feedback" role="note">
+          😔 오늘 컨디션이 평소보다 낮네요. 짧은 산책이나 가벼운 스트레칭이 도움이 될 수 있어요.
+        </div>
+      </div>
+    </div><!-- /심리 -->
+
+    <!-- ══ Card / 수면 ══ -->
+    <div class="card" role="region" aria-label="수면">
+      <div class="card-header">
+        <div class="card-header-left" role="button" tabindex="0" aria-label="수면 상세보기">
+          <span class="card-title">수면</span>
+          <div class="icon-arrow">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <path d="M6.75 4.5 11.25 9l-4.5 4.5" stroke="#5f6677" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <button class="btn-input" aria-label="수면 입력">
+          <span class="plus-icon">＋</span>입력하기
+        </button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <!-- 점수 + 배지 + 상세 -->
+        <div class="sleep-top">
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <div class="sleep-score">
+              <span class="number">67</span>
+              <span class="unit">점</span>
+            </div>
+            <span class="sleep-badge">보통</span>
+          </div>
+
+          <!-- [UX 개선] "오늘의 컨디션" 오기 → 올바른 수면 데이터로 교체 -->
+          <div class="sleep-details">
+            <div class="sleep-detail-row">
+              <svg class="icon" viewBox="0 0 18 18" fill="none" width="18" height="18">
+                <path d="M9 2a7 7 0 1 0 0 14A7 7 0 0 0 9 2Z" stroke="#5f6677" stroke-width="1.3"/>
+                <path d="M9 5v4l2.5 2" stroke="#5f6677" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              <span class="detail-label">취침</span>
+              <span class="detail-text">오전 12:30</span>
+            </div>
+            <div class="sleep-detail-row">
+              <svg class="icon" viewBox="0 0 18 18" fill="none" width="18" height="18">
+                <circle cx="9" cy="9" r="3" stroke="#ffaa00" stroke-width="1.3"/>
+                <path d="M9 1v2M9 15v2M1 9h2M15 9h2M3.2 3.2l1.4 1.4M13.4 13.4l1.4 1.4M3.2 14.8l1.4-1.4M13.4 4.6l1.4-1.4" stroke="#ffaa00" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+              <span class="detail-label">기상</span>
+              <span class="detail-text">오전 7:50</span>
+            </div>
+            <div class="sleep-detail-row">
+              <svg class="icon" viewBox="0 0 18 18" fill="none" width="18" height="18">
+                <path d="M5 9h8M5 12h5" stroke="#5f6677" stroke-width="1.3" stroke-linecap="round"/>
+                <rect x="2" y="4" width="14" height="11" rx="2" stroke="#5f6677" stroke-width="1.3"/>
+              </svg>
+              <span class="detail-label">총 수면</span>
+              <span class="detail-text">7시간 20분</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 수면 단계 바 -->
+        <div class="sleep-bar-section">
+          <div class="sleep-bar">
+            <div class="seg-deep"  style="width:20%"></div>
+            <div class="seg-light" style="width:45%"></div>
+            <div class="seg-rem"   style="width:20%"></div>
+            <div style="flex:1;background:#e1e5ee;"></div>
+          </div>
+          <div class="sleep-stages">
+            <div class="sleep-stage">
+              <div class="dot" style="background:#6068d6"></div>
+              <span>깊은 수면 1h 28m</span>
+            </div>
+            <div class="sleep-stage">
+              <div class="dot" style="background:var(--primary-400)"></div>
+              <span>얕은 수면 3h 18m</span>
+            </div>
+            <div class="sleep-stage">
+              <div class="dot" style="background:var(--primary-200)"></div>
+              <span>REM 1h 28m</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /수면 -->
+
+  </div><!-- /scroll-area -->
+</div><!-- /phone -->
+</body>
+</html>
